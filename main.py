@@ -1,7 +1,9 @@
-#from programclass.TitulosDao import TitulosDao
-#from programclass.ConexaoBanco import DB
-#from db.ConexaoBanco import DB
-from model_dao.TitulosDao import TitulosDao
+from model_entities.TitulosPagos import TitulosPagos
+from model_services.TitulosPagosServices import TitulosPagosServices
+from utils import leArquivos
 
-teste = TitulosDao()
-print(teste.consultaPagamentoTitulo(1, "1234"))
+def processaTitutosPagos():
+
+    inscricaoCliente
+    
+    titulosPagos = TitulosPagos()
