@@ -12,10 +12,7 @@ class TitulosPagosServices:
 
         self.__valor_pago = self.__titulosDao.consultaPagamentoTitulo(codi_emp, i_faturamento_e_parcela)
         self.__valor_pago = funcoesUteis.trataCampoDecimal(self.__valor_pago)
-        if self.__valor_pago > 0:
-            return True
-        else:
-            return False 
+        return self.__valor_pago
 
         
 

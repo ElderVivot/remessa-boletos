@@ -1,9 +1,17 @@
+# -*- coding: cp1252 -*-
+
+import os
 from model_entities.TitulosPagos import TitulosPagos
 from model_services.TitulosPagosServices import TitulosPagosServices
-from utils import leArquivos
+import utils.leArquivos
 
 def processaTitutosPagos():
 
-    inscricaoCliente
+    print(utils.leArquivos.buscaSubpastas())
     
-    titulosPagos = TitulosPagos()
+
+    #inscricaoCliente = 
+    
+    #titulosPagos = TitulosPagos()
+
+processaTitutosPagos()
