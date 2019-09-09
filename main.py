@@ -219,3 +219,6 @@ processamentoTitulosPagos = processaTitutosPagos()
 
 geraArquivoRetorno(processamentoTitulosPagos[0])
 modificaRemessa(processamentoTitulosPagos[1])
+
+print('\n- Processo finalizado, aperte qualquer tecla pra sair.')
+os.system('pause > nul')
