@@ -159,7 +159,7 @@ def geraArquivoRetorno(lista_arquivo_retorno):
         arquivo_retorno_excel = open(caminho_retorno_excel, 'w', encoding='Windows-1252')
 
         arquivo_retorno.write(f"0{data_atual}{ultimo_sequencial:0>6d}P0100PP{' '*271}E{' '*61}\n")
-        arquivo_retorno_excel.write("Seq. Faturamento Parcela;CNPJ;Nome;Vencimento;Data Pagamento;Valor em Aberto;Valor Total Parcela;Valor Total Pago;Nosso Numero\n")
+        arquivo_retorno_excel.write("Seq. Faturamento Parcela;CNPJ;Nome;Vencimento;Data Pagamento;Valor Gerado na Remessa;Valor Total Parcela;Valor Total Pago;Nosso Numero\n")
 
         qtd_registros = 0
         for retorno in dados_retorno:
