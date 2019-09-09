@@ -5,14 +5,22 @@ from utils import funcoesUteis
 class TitulosPagosServices:
 
     def __init__(self):
-        self.__valor_pago = 0
+        self.__valorPago = 0
+        self.__dataPagamento = None
         
     def analisaTitulosPagosFaturamento(self, codi_emp, i_faturamento_e_parcela):
         self.__titulosDao = TitulosDao()
 
-        self.__valor_pago = self.__titulosDao.consultaPagamentoTitulo(codi_emp, i_faturamento_e_parcela)
-        self.__valor_pago = funcoesUteis.trataCampoDecimal(self.__valor_pago)
-        return self.__valor_pago
+        try:
+            self.__dados_titulo = self.__titulosDao.consultaPagamentoTitulo(codi_emp, i_faturamento_e_parcela)
+
+            self.__valorPago = funcoesUteis.trataCampoDecimal(self.__dados_titulo[0][0])
+            self.__dataPagamento = funcoesUteis.retornaCampoComoData(self.__dados_titulo[0][1],2)
+        except Exception as e:
+            print(e)
+
+        #return self.__dados_titulo
+        return [self.__valorPago,self.__dataPagamento]
 
         
 

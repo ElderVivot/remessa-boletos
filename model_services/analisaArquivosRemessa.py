@@ -1,35 +1,37 @@
-def analisaArquivosRemessa(caminho):
-    titulos = []
-    titulo = []
-    with open(caminho, 'rt') as txtfile:
-        for linha in txtfile:
-            linha = str(linha).replace("\n", "")
+def analisaArquivosRemessa(linhas_arquivo, codi_emp):
 
-            if linha[0] == "1":
-                    
-                cnpj = linha[8:22]
+    lista_linha_retorno = []
+    lista_linha_remessa = []
 
-                nome = linha[22:92].strip()
+    for linha in linhas_arquivo:
+        linha = str(linha)
 
-                vencimento = linha[200:207]
+        try:
+            ja_processado_pagamento_anteriormente = linha[356]
+        except Exception:
+            ja_processado_pagamento_anteriormente = "0"
 
-                valor = linha[216:227]
+        # somente os titulos e os que ainda não foram pagos
+        if linha[0] == "1" and ja_processado_pagamento_anteriormente == "0":
+                
+            faturamento_parcela = str(int(linha[253:262]))
 
-                faturamento_parcela = linha[253:262]
+            tituloPago = TitulosPagosServices()
+            dadosTituloPago = TitulosPagosServices.analisaTitulosPagosFaturamento(codi_emp, faturamento_parcela)
 
-                nosso_numero = linha[262:278]
+            if dadosTituloPago[0] > 0 or dadosTituloPago[1] is not None:
+                motivo_exclusao = "01"
+                linha_retorno = f"2{linha[1:227]}{motivo_exclusao}{linha[230:]}"
+                lista_linha_retorno.append(linha_retorno)
 
-                #print(cnpj, nome, vencimento, valor, faturamento_parcela, nosso_numero)
-                titulo.append(cnpj)
-                titulo.append(nome)
-                titulo.append(vencimento)
-                titulo.append(valor)
-                titulo.append(faturamento_parcela)
-                titulo.append(nosso_numero)
+                linha = f"{linha}1"
+                lista_linha_remessa.append(linha)
+            else:
+                linha = f"{linha}0"
+                lista_linha_remessa.append(linha)
 
-                titulos.append(titulo[:])
-
-                titulo.clear()
+        else: 
+            lista_linha_remessa.append(linha)
         
-    return titulos
+    return [lista_linha_remessa, lista_linha_retorno]
 

@@ -3,29 +3,30 @@
 import pyodbc
 
 user='EXTERNO'
-password='EXTERNO'
+password='dominio'
 host='Contabil'
 port='2638'
 
-class DB(object):
+class DB():
 
-    connection = None
+    def __init__(self):
+        self.connection = None
 
-    @staticmethod
-    def getConnection():
-        if DB.connection is None:
+    #@staticmethod
+    def getConnection(self):
+        if self.connection is None:
             try:
-                DB.connection = pyodbc.connect(DSN=host,UID=user,PWD=password,PORT=port)
-                print('- Conexão com a Domínio realizada com sucesso.')
+                self.connection = pyodbc.connect(DSN=host,UID=user,PWD=password,PORT=port)
+                #print('- Conexão com a Domínio realizada com sucesso.')
             except Exception as e:
                 print(f"** Não foi possível realizar a conexão. O erro é: {e}")
-        return DB.connection
+        return self.connection
 
-    @staticmethod
-    def closeConnection():
-        if DB.connection is not None:
+    #@staticmethod
+    def closeConnection(self):
+        if self.connection is not None:
             try:
-                DB.connection.close()
-                print('- Conexão fechada com sucesso')
+                self.connection.close()
+                #print('- Conexão fechada com sucesso')
             except Exception as e:
                 print(f"** Não foi possível fechar a conexão. O erro é: {e}")

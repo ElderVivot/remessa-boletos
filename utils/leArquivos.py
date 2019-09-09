@@ -8,18 +8,27 @@ import sys
 import datetime
 from . import funcoesUteis
 
-# def buscaArquivosEmPasta(caminho="", extensao=(".XLS", "XLSX")):
-#     arquivos = os.listdir(caminho)
-#     lista_arquivos = []
+def buscaArquivosEmPasta(caminho="Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\INCLUSÃO", extensao=(".TXT"), buscarSubpastas=True):
+    
+    pastas = []
+    lista_arquivos = []
 
-#     for arquivo in arquivos:
-#         arquivo = str(arquivo).upper()
-#         if arquivo.endswith(extensao):
-#             lista_arquivos.append(caminho+"\\"+arquivo)
+    if buscarSubpastas == True:
+        pastas = buscaSubpastas(caminho)
+    else:
+        pastas.append(caminho)
 
-#     return lista_arquivos
+    for pasta in pastas:
+        arquivos = os.listdir(pasta)
+        
+        for arquivo in arquivos:
+            arquivo = str(arquivo).upper()
+            if arquivo.endswith(extensao) and os.path.isdir(os.path.join(pasta,arquivo)) == False:
+                lista_arquivos.append(os.path.join(pasta,arquivo))
 
-def buscaSubpastas(caminhoPrincipal="D:\\temp\\remessa\\inclusao"):
+    return lista_arquivos
+
+def buscaSubpastas(caminhoPrincipal):
 
     subpastas = []
 
@@ -169,21 +178,14 @@ def buscaSubpastas(caminhoPrincipal="D:\\temp\\remessa\\inclusao"):
 # # chama a geração da transformação pra PDF
 # #PDFToText()
 
-# def leTxt(arquivos=buscaArquivosEmPasta(caminho="temp", extensao=(".TXT"))):
-#     lista_arquivos = {}
-#     lista_linha = []
+def leTxt(caminho):
+    lista_linha = []
     
-#     for arquivo in arquivos:
-#         # pra cada arquivo criar uma posição no dicionário
-#         lista_arquivos[arquivo] = lista_linha[:]
-        
-#         # le o arquivo e grava num vetor
-#         with open(arquivo, 'rt') as txtfile:
-#             for linha in txtfile:
-#                 linha = str(linha).replace("\n", "")
-#                 lista_linha.append(linha)
-#             lista_arquivos[arquivo] = lista_linha[:]
-#             lista_linha.clear()
-#         txtfile.close()
+    # le o arquivo e grava num vetor
+    with open(caminho, 'rt') as txtfile:
+        for linha in txtfile:
+            linha = str(linha).replace("\n", "")
+            lista_linha.append(linha)
+    txtfile.close()
 
-#     return lista_arquivos
+    return lista_linha
