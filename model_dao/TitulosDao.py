@@ -1,5 +1,6 @@
 from db.ConexaoBanco import DB
 import pyodbc
+import decimal
 
 class TitulosDao:
 

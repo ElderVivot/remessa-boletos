@@ -7,6 +7,7 @@ class TitulosPagosServices:
     def __init__(self):
         self.__valorPago = 0
         self.__dataPagamento = None
+        self.__valorParcela = 0
         
     def analisaTitulosPagosFaturamento(self, codi_emp, i_faturamento_e_parcela):
         self.__titulosDao = TitulosDao()
