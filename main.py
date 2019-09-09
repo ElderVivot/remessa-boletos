@@ -7,6 +7,23 @@ from model_services.TitulosPagosServices import TitulosPagosServices
 import utils.leArquivos as leArquivos
 import utils.funcoesUteis as funcoesUteis
 
+def identificaEmpresaPeloNomeCaminho(caminho, texto):
+    caminho_pasta_dividido = caminho.upper().split('\\')
+
+    if caminho_pasta_dividido.count('SOMA') > 0:
+        codi_emp = 1
+        print(f'{texto} da SOMA')
+    elif caminho_pasta_dividido.count('SOMANDO') > 0:
+        codi_emp = 123
+        print(f'{texto} da SOMANDO')
+    elif caminho_pasta_dividido.count('RESULTE') > 0:
+        codi_emp = 338
+        print(f'{texto} da RESULTE')
+    else:
+        codi_emp = 0
+
+    return codi_emp
+
 def analisaArquivosRemessa(linhas_arquivo, codi_emp):
 
     lista_linha_retorno = []
@@ -16,7 +33,7 @@ def analisaArquivosRemessa(linhas_arquivo, codi_emp):
         linha = str(linha)
 
         try:
-            ja_processado_pagamento_anteriormente = linha[356]
+            ja_processado_pagamento_anteriormente = linha[355]
             if ja_processado_pagamento_anteriormente == " ":
                 ja_processado_pagamento_anteriormente = "0"
         except Exception:
@@ -32,14 +49,15 @@ def analisaArquivosRemessa(linhas_arquivo, codi_emp):
 
             valorPago = dadosTituloPago[0]
             dataPagamento = dadosTituloPago[1]
+            valorParcela = dadosTituloPago[2]
 
-            if valorPago > 0 or dataPagamento is not None:
+            if dataPagamento is not None and valorPago >= valorParcela:
                 dataPagamento = funcoesUteis.transformaCampoDataParaFormatoBrasileiro(dataPagamento)
 
                 motivo_exclusao = "01"
-                linha_retorno = f"2{linha[1:227]}{motivo_exclusao}{linha[230:355]}{valorPago:>12.2f}{dataPagamento:<10}"
+                linha_retorno = f"2{linha[1:227]}{motivo_exclusao}{linha[229:355]}{valorPago:>14.2f}{dataPagamento:<10}{valorParcela:>14.2f}"
                 lista_linha_retorno.append(linha_retorno)
-                print(linha_retorno)
+                #print(linha_retorno)
 
                 linha = f"{linha[0:355]}1"
                 lista_linha_remessa.append(linha)
@@ -48,38 +66,30 @@ def analisaArquivosRemessa(linhas_arquivo, codi_emp):
                 lista_linha_remessa.append(linha)
 
         else: 
-            lista_linha_remessa.append(linha[0:355])
+            lista_linha_remessa.append(linha[0:356])
         
     return [lista_linha_remessa, lista_linha_retorno]
 
 def processaTitutosPagos():
 
-    pastas = leArquivos.buscaSubpastas("D:\\temp\\REMESSA - NEGATIVAÇÃO\\INCLUSÃO")
+    pastas = leArquivos.buscaSubpastas("Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\INCLUSÃO")
 
     lista_arquivos_retorno = {}
     lista_retorno = []
+
+    lista_arquivos_remessa = {}
+
+    print('\n- ETAPA 1: Leitura dos arquivos de remessa')
 
     for pasta in pastas:
 
         pasta = str(pasta)
         
-        caminho_pasta_dividido = pasta.upper().split('\\')
-
-        if caminho_pasta_dividido.count('SOMA') > 0:
-            codi_emp = 1
-            print('- Processando arquivos de remessa da SOMA')
-        elif caminho_pasta_dividido.count('SOMANDO') > 0:
-            codi_emp = 123
-            print('- Processando arquivos de remessa da SOMANDO')
-        elif caminho_pasta_dividido.count('RESULTE') > 0:
-            codi_emp = 338
-            print('- Processando arquivos de remessa da RESULTE')
-        else:
-            codi_emp = 0
+        codi_emp = identificaEmpresaPeloNomeCaminho(pasta, '    - Lendo arquivos de remessa')
             
         for raiz, diretorios, arquivos in os.walk(pasta):
             for arquivo in arquivos:
-                print(f"     - Lendo o arquivo {arquivo}")
+                print(f"        - Lendo o arquivo {arquivo}")
 
                 caminho_arquivo = os.path.join(raiz,arquivo)
 
@@ -88,65 +98,124 @@ def processaTitutosPagos():
                 analiseArquivoRemessa = analisaArquivosRemessa(linhas_arquivo, codi_emp)
 
                 lista_linha_remessa = analiseArquivoRemessa[0]
-                #print(lista_linha_remessa)
+                lista_arquivos_remessa[caminho_arquivo] = lista_linha_remessa[:]
 
                 lista_linha_retorno = analiseArquivoRemessa[1]
-                #print(lista_linha_retorno)
-
                 lista_retorno.append(lista_linha_retorno[:])
 
             lista_arquivos_retorno[codi_emp] = lista_retorno[:]
             lista_retorno.clear()
 
-    return lista_arquivos_retorno
+    return [lista_arquivos_retorno, lista_arquivos_remessa]
+
+def pegaUltimoSequencialRemessa(pastaRetorno):
+    arquivos = leArquivos.buscaArquivosEmPasta(pastaRetorno, buscarSubpastas=False)
+    
+    maior = 0
+
+    for arquivo in arquivos:
+        with open(arquivo, 'rt') as txtfile:
+            for linha in txtfile:
+                if linha[0] == '0':
+                    maior_atual = int(linha[9:15])
+                    if maior < maior_atual:
+                        maior = maior_atual
+    
+    return maior
             
 def geraArquivoRetorno(lista_arquivo_retorno):
+
+    print('\n- ETAPA 2: Gerando arquivo de retorno')
+
     for codi_emp, dados_retorno in lista_arquivo_retorno.items():
-        caminho_retorno = 'D:\\temp\REMESSA - NEGATIVAÇÃO\\EXCLUSÃO'
+        caminho_retorno = 'Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\EXCLUSÃO'
 
         if codi_emp == 1:
             caminho_retorno = os.path.join(caminho_retorno,'SOMA')
-            print('- Gerando arquivos de retorno da SOMA')
+            print('    - Gerando arquivos de retorno da SOMA')
         elif codi_emp == 123:
             caminho_retorno = os.path.join(caminho_retorno,'SOMANDO')
-            print('- Gerando arquivos de retorno da SOMANDO')
+            print('    - Gerando arquivos de retorno da SOMANDO')
         elif codi_emp == 338:
             caminho_retorno = os.path.join(caminho_retorno,'RESULTE')
-            print('- Gerando arquivos de retorno da RESULTE')
+            print('    - Gerando arquivos de retorno da RESULTE')
         else:
-            print(f'- Gerando arquivos de retorno da {codi_emp}')
+            print(f'    - Gerando arquivos de retorno da {codi_emp}')
+
+        ultimo_sequencial = pegaUltimoSequencialRemessa(caminho_retorno)
+        ultimo_sequencial += 1
+        #print(ultimo_sequencial)
 
         dia_e_horario_atual = datetime.datetime.now()
 
         nome_arquivo = f"{dia_e_horario_atual.strftime('%Y%m%d %H%M')}.txt"
+        nome_arquivo_excel = f"{dia_e_horario_atual.strftime('%Y%m%d %H%M')}.csv"
         data_atual = dia_e_horario_atual.strftime('%Y%m%d')
 
+        caminho_retorno_excel = os.path.join(caminho_retorno, nome_arquivo_excel)
         caminho_retorno = os.path.join(caminho_retorno, nome_arquivo)
-
+        
         arquivo_retorno = open(caminho_retorno, 'w', encoding='Windows-1252')
+        arquivo_retorno_excel = open(caminho_retorno_excel, 'w', encoding='Windows-1252')
 
-        arquivo_retorno.write(f"0{data_atual}00001P0100PP{' '*271}E{' '*60}\n")
+        arquivo_retorno.write(f"0{data_atual}{ultimo_sequencial:0>6d}P0100PP{' '*271}E{' '*61}\n")
+        arquivo_retorno_excel.write("Seq. Faturamento Parcela;CNPJ;Nome;Vencimento;Data Pagamento;Valor em Aberto;Valor Total Parcela;Valor Total Pago;Nosso Numero\n")
 
+        qtd_registros = 0
         for retorno in dados_retorno:
             for linha_retorno in retorno:
 
-                cnpj = linha_retorno[8:22]
+                cnpj = f"'{linha_retorno[8:22]}"
 
                 nome = linha_retorno[22:92].strip()
 
                 vencimento = f"{linha_retorno[206:208]}/{linha_retorno[204:206]}/{linha_retorno[200:204]}"
 
-                valor = f"{linha_retorno[216:225]}.{linha_retorno[225:227]}"
-                valor = float(valor)
+                valor_remessa = f"{linha_retorno[216:225]}.{linha_retorno[225:227]}"
+                valor_remessa = float(valor_remessa)
 
                 faturamento_parcela = int(linha_retorno[253:262])
 
-                nosso_numero = linha_retorno[262:279]
+                nosso_numero = f"'{linha_retorno[262:278]}"
 
-                arquivo_retorno.write(f"{linha_retorno}\n")
+                valor_pago = float(linha_retorno[355:369].strip())
 
-        arquivo_retorno.write(f"9000009{' '*287}{' '*60}\n")
+                data_pagamento = linha_retorno[369:380]
+
+                valor_parcela = float(linha_retorno[380:394].strip())
+
+                arquivo_retorno.write(f"{linha_retorno[0:355]}\n")
+
+                arquivo_retorno_excel.write(f"{faturamento_parcela};{cnpj};{nome};{vencimento};{data_pagamento};{valor_remessa};{valor_parcela};{valor_pago};{nosso_numero}\n")
+
+                qtd_registros += 1
+
+        arquivo_retorno.write(f"9{qtd_registros:0>6d}{' '*287}{' '*61}\n")
 
         arquivo_retorno.close()
+        arquivo_retorno_excel.close()
 
-geraArquivoRetorno(processaTitutosPagos())
+        if qtd_registros == 0:
+            os.remove(caminho_retorno)
+            os.remove(caminho_retorno_excel)
+            print(f"        - Não há nenhum pagamento realizado após o processamento do último arquivo.")
+
+def modificaRemessa(lista_arquivo_remessa):
+
+    print('\n- ETAPA 3: Atualizando arquivo de remessa.')
+
+    for arquivo, linhas in lista_arquivo_remessa.items():
+
+        identificaEmpresaPeloNomeCaminho(arquivo, '    - Atualizando arquivos de remessa')
+
+        arquivo_saida = open(arquivo, 'w', encoding='Windows-1252')
+        for linha in linhas:
+            arquivo_saida.write(f'{linha}\n')
+        arquivo_saida.close()
+
+processamentoTitulosPagos = processaTitutosPagos()
+
+#print(processamentoTitulosPagos[1])
+
+geraArquivoRetorno(processamentoTitulosPagos[0])
+modificaRemessa(processamentoTitulosPagos[1])

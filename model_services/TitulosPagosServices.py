@@ -16,11 +16,12 @@ class TitulosPagosServices:
 
             self.__valorPago = funcoesUteis.trataCampoDecimal(self.__dados_titulo[0][0])
             self.__dataPagamento = funcoesUteis.retornaCampoComoData(self.__dados_titulo[0][1],2)
+            self.__valorParcela = funcoesUteis.trataCampoDecimal(self.__dados_titulo[0][2])
         except Exception as e:
             print(e)
 
         #return self.__dados_titulo
-        return [self.__valorPago,self.__dataPagamento]
+        return [self.__valorPago,self.__dataPagamento,self.__valorParcela]
 
         
 
