@@ -89,19 +89,23 @@ def processaTitutosPagos():
             
         for raiz, diretorios, arquivos in os.walk(pasta):
             for arquivo in arquivos:
-                print(f"        - Lendo o arquivo {arquivo}")
+                if arquivo.upper().endswith('.TXT'):
 
-                caminho_arquivo = os.path.join(raiz,arquivo)
+                    print(f"        - Lendo o arquivo {arquivo}")
 
-                linhas_arquivo = leArquivos.leTxt(caminho_arquivo)
+                    caminho_arquivo = os.path.join(raiz,arquivo)
 
-                analiseArquivoRemessa = analisaArquivosRemessa(linhas_arquivo, codi_emp)
+                    linhas_arquivo = leArquivos.leTxt(caminho_arquivo)
 
-                lista_linha_remessa = analiseArquivoRemessa[0]
-                lista_arquivos_remessa[caminho_arquivo] = lista_linha_remessa[:]
+                    analiseArquivoRemessa = analisaArquivosRemessa(linhas_arquivo, codi_emp)
 
-                lista_linha_retorno = analiseArquivoRemessa[1]
-                lista_retorno.append(lista_linha_retorno[:])
+                    lista_linha_remessa = analiseArquivoRemessa[0]
+                    lista_arquivos_remessa[caminho_arquivo] = lista_linha_remessa[:]
+
+                    lista_linha_retorno = analiseArquivoRemessa[1]
+                    lista_retorno.append(lista_linha_retorno[:])
+                else:
+                    continue
 
             lista_arquivos_retorno[codi_emp] = lista_retorno[:]
             lista_retorno.clear()
