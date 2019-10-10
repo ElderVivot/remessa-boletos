@@ -112,18 +112,21 @@ def processaTitutosPagos():
 
     return [lista_arquivos_retorno, lista_arquivos_remessa]
 
-def pegaUltimoSequencialRemessa(pastaRetorno):
-    arquivos = leArquivos.buscaArquivosEmPasta(pastaRetorno, buscarSubpastas=False)
+def pegaUltimoSequencialRemessa(*pastasLeitura):
     
     maior = 0
 
-    for arquivo in arquivos:
-        with open(arquivo, 'rt') as txtfile:
-            for linha in txtfile:
-                if linha[0] == '0':
-                    maior_atual = int(linha[9:15])
-                    if maior < maior_atual:
-                        maior = maior_atual
+    for pastas in pastasLeitura:
+
+        arquivos = leArquivos.buscaArquivosEmPasta(pastas, buscarSubpastas=False)
+
+        for arquivo in arquivos:
+            with open(arquivo, 'rt') as txtfile:
+                for linha in txtfile:
+                    if linha[0] == '0':
+                        maior_atual = int(linha[9:15])
+                        if maior < maior_atual:
+                            maior = maior_atual
     
     return maior
             
@@ -146,7 +149,11 @@ def geraArquivoRetorno(lista_arquivo_retorno):
         else:
             print(f'    - Gerando arquivos de retorno da {codi_emp}')
 
-        ultimo_sequencial = pegaUltimoSequencialRemessa(caminho_retorno)
+        # subtituiu pois preciso procurar nas pastas de inclusão e exclusão o sequencial
+        caminho_remessa = caminho_retorno.replace('EXCLUSÃO', 'INCLUSÃO')
+
+        ultimo_sequencial = pegaUltimoSequencialRemessa(caminho_retorno, caminho_remessa)
+        print(ultimo_sequencial)
         ultimo_sequencial += 1
         #print(ultimo_sequencial)
 
