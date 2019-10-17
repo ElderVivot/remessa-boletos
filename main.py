@@ -174,7 +174,7 @@ def geraArquivoRetorno(lista_arquivo_retorno):
 
         qtd_registros = 0
         for retorno in dados_retorno:
-            for linha_retorno in retorno:
+            for num_row, linha_retorno in enumerate(retorno):
 
                 cnpj = f"'{linha_retorno[8:22]}"
 
@@ -195,7 +195,9 @@ def geraArquivoRetorno(lista_arquivo_retorno):
 
                 valor_parcela = float(linha_retorno[380:394].strip())
 
-                arquivo_retorno.write(f"{linha_retorno[0:355]}\n")
+                sequencial_detalhe = num_row + 1
+
+                arquivo_retorno.write(f"{linha_retorno[0]}{sequencial_detalhe:0>6d}{linha_retorno[7:355]}\n")
 
                 arquivo_retorno_excel.write(f"{faturamento_parcela};{cnpj};{nome};{vencimento};{data_pagamento};{valor_remessa};{valor_parcela};{valor_pago};{nosso_numero}\n")
 
