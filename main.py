@@ -153,7 +153,7 @@ def geraArquivoRetorno(lista_arquivo_retorno):
         caminho_remessa = caminho_retorno.replace('EXCLUSÃO', 'INCLUSÃO')
 
         ultimo_sequencial = pegaUltimoSequencialRemessa(caminho_retorno, caminho_remessa)
-        print(ultimo_sequencial)
+        # print(ultimo_sequencial)
         ultimo_sequencial += 1
         #print(ultimo_sequencial)
 
@@ -173,8 +173,8 @@ def geraArquivoRetorno(lista_arquivo_retorno):
         arquivo_retorno_excel.write("Seq. Faturamento Parcela;CNPJ;Nome;Vencimento;Data Pagamento;Valor Gerado na Remessa;Valor Total Parcela;Valor Total Pago;Nosso Numero\n")
 
         qtd_registros = 0
-        for retorno in dados_retorno:
-            for num_row, linha_retorno in enumerate(retorno):
+        for num_row, retorno in enumerate(dados_retorno):
+            for linha_retorno in retorno:
 
                 cnpj = f"'{linha_retorno[8:22]}"
 
