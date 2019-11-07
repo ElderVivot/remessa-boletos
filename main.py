@@ -7,6 +7,9 @@ from model_services.TitulosPagosServices import TitulosPagosServices
 import utils.leArquivos as leArquivos
 import utils.funcoesUteis as funcoesUteis
 
+caminho_base_remessa = "Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\INCLUSÃO"
+caminho_base_retorno = 'Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\EXCLUSÃO'
+
 def identificaEmpresaPeloNomeCaminho(caminho, texto):
     caminho_pasta_dividido = caminho.upper().split('\\')
 
@@ -72,7 +75,7 @@ def analisaArquivosRemessa(linhas_arquivo, codi_emp):
 
 def processaTitutosPagos():
 
-    pastas = leArquivos.buscaSubpastas("Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\INCLUSÃO")
+    pastas = leArquivos.buscaSubpastas(caminho_base_remessa)
 
     lista_arquivos_retorno = {}
     lista_retorno = []
@@ -135,7 +138,7 @@ def geraArquivoRetorno(lista_arquivo_retorno):
     print('\n- ETAPA 2: Gerando arquivo de retorno')
 
     for codi_emp, dados_retorno in lista_arquivo_retorno.items():
-        caminho_retorno = 'Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\EXCLUSÃO'
+        caminho_retorno = caminho_base_retorno
 
         if codi_emp == 1:
             caminho_retorno = os.path.join(caminho_retorno,'SOMA')
@@ -173,35 +176,34 @@ def geraArquivoRetorno(lista_arquivo_retorno):
         arquivo_retorno_excel.write("Seq. Faturamento Parcela;CNPJ;Nome;Vencimento;Data Pagamento;Valor Gerado na Remessa;Valor Total Parcela;Valor Total Pago;Nosso Numero\n")
 
         qtd_registros = 0
-        for num_row, retorno in enumerate(dados_retorno):
-            for linha_retorno in retorno:
+        for retorno in dados_retorno:
+            if len(retorno) > 0:
+                for linha_retorno in retorno:
 
-                cnpj = f"'{linha_retorno[8:22]}"
+                    cnpj = f"'{linha_retorno[8:22]}"
 
-                nome = linha_retorno[22:92].strip()
+                    nome = linha_retorno[22:92].strip()
 
-                vencimento = f"{linha_retorno[206:208]}/{linha_retorno[204:206]}/{linha_retorno[200:204]}"
+                    vencimento = f"{linha_retorno[206:208]}/{linha_retorno[204:206]}/{linha_retorno[200:204]}"
 
-                valor_remessa = f"{linha_retorno[216:225]}.{linha_retorno[225:227]}"
-                valor_remessa = float(valor_remessa)
+                    valor_remessa = f"{linha_retorno[216:225]}.{linha_retorno[225:227]}"
+                    valor_remessa = float(valor_remessa)
 
-                faturamento_parcela = int(linha_retorno[253:262])
+                    faturamento_parcela = int(linha_retorno[253:262])
 
-                nosso_numero = f"'{linha_retorno[262:278]}"
+                    nosso_numero = f"'{linha_retorno[262:278]}"
 
-                valor_pago = float(linha_retorno[355:369].strip())
+                    valor_pago = float(linha_retorno[355:369].strip())
 
-                data_pagamento = linha_retorno[369:380]
+                    data_pagamento = linha_retorno[369:380]
 
-                valor_parcela = float(linha_retorno[380:394].strip())
+                    valor_parcela = float(linha_retorno[380:394].strip())
 
-                sequencial_detalhe = num_row + 1
+                    qtd_registros += 1
 
-                arquivo_retorno.write(f"{linha_retorno[0]}{sequencial_detalhe:0>6d}{linha_retorno[7:355]}\n")
+                    arquivo_retorno.write(f"{linha_retorno[0]}{qtd_registros:0>6d}{linha_retorno[7:355]}\n")
 
-                arquivo_retorno_excel.write(f"{faturamento_parcela};{cnpj};{nome};{vencimento};{data_pagamento};{valor_remessa};{valor_parcela};{valor_pago};{nosso_numero}\n")
-
-                qtd_registros += 1
+                    arquivo_retorno_excel.write(f"{faturamento_parcela};{cnpj};{nome};{vencimento};{data_pagamento};{valor_remessa};{valor_parcela};{valor_pago};{nosso_numero}\n")
 
         arquivo_retorno.write(f"9{qtd_registros:0>6d}{' '*287}{' '*61}\n")
 
