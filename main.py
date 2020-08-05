@@ -7,8 +7,10 @@ from model_services.TitulosPagosServices import TitulosPagosServices
 import utils.leArquivos as leArquivos
 import utils.funcoesUteis as funcoesUteis
 
-caminho_base_remessa = "Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\INCLUSÃO"
-caminho_base_retorno = 'Z:\\ADM\\REMESSA - NEGATIVAÇÃO\\EXCLUSÃO'
+absPath = os.path.dirname(os.path.abspath(__file__))
+
+caminho_base_remessa = os.path.join(absPath, 'INCLUSÃO')
+caminho_base_retorno = os.path.join(absPath, 'EXCLUSÃO')
 
 def identificaEmpresaPeloNomeCaminho(caminho, texto):
     caminho_pasta_dividido = caminho.upper().split('\\')
