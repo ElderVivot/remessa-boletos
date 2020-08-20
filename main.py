@@ -55,11 +55,18 @@ def analisaArquivosRemessa(linhas_arquivo, codi_emp):
             valorPago = dadosTituloPago[0]
             dataPagamento = dadosTituloPago[1]
             valorParcela = dadosTituloPago[2]
+            alteradoVenc = dadosTituloPago[3]
+            renegociado = dadosTituloPago[4]
 
-            if dataPagamento is not None and valorPago >= valorParcela:
+            if ( dataPagamento is not None and valorPago >= valorParcela ) or ( alteradoVenc == 'alterado' or renegociado == 'renegociado' ):
                 dataPagamento = funcoesUteis.transformaCampoDataParaFormatoBrasileiro(dataPagamento)
 
                 motivo_exclusao = "01"
+                if renegociado == 'renegociado':
+                    motivo_exclusao = "02"
+                if alteradoVenc == 'alterado':
+                    motivo_exclusao = "08"
+                    
                 linha_retorno = f"2{linha[1:227]}{motivo_exclusao}{linha[229:355]}{valorPago:>14.2f}{dataPagamento:<10}{valorParcela:>14.2f}"
                 lista_linha_retorno.append(linha_retorno)
                 #print(linha_retorno)
