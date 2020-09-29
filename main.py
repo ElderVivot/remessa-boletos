@@ -21,8 +21,11 @@ def identificaEmpresaPeloNomeCaminho(caminho, texto):
     elif caminho_pasta_dividido.count('SOMANDO') > 0:
         codi_emp = 123
         print(f'{texto} da SOMANDO')
+    elif caminho_pasta_dividido.count('SOMANDO UNIPESSOAL') > 0:
+        codi_emp = 1965
+        print(f'{texto} da SOMANDO UNIPESSOAL')
     elif caminho_pasta_dividido.count('RESULTE') > 0:
-        codi_emp = 338
+        codi_emp = 20
         print(f'{texto} da RESULTE')
     else:
         codi_emp = 0
@@ -155,7 +158,10 @@ def geraArquivoRetorno(lista_arquivo_retorno):
         elif codi_emp == 123:
             caminho_retorno = os.path.join(caminho_retorno,'SOMANDO')
             print('    - Gerando arquivos de retorno da SOMANDO')
-        elif codi_emp == 338:
+        elif codi_emp == 1965:
+            caminho_retorno = os.path.join(caminho_retorno,'SOMANDO UNIPESSOAL')
+            print('    - Gerando arquivos de retorno da SOMANDO UNIPESSOAL')
+        elif codi_emp == 20:
             caminho_retorno = os.path.join(caminho_retorno,'RESULTE')
             print('    - Gerando arquivos de retorno da RESULTE')
         else:

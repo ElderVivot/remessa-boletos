@@ -12,11 +12,11 @@ class TitulosDao:
     def consultaPagamentoTitulo(self, codi_emp, i_faturamento_e_parcela):
         try:
             self._cursor = self._connection.cursor()
-            self._cursor.execute("SELECT SUM(COALESCE(rec.valor_recebido, 0) - COALESCE(rec.valor_refaturado, 0) - COALESCE(rec.valor_reparcelado, 0) - COALESCE(rec.valor_quitado, 0)) AS valor_recebido,"
+            self._cursor.execute("SELECT SUM(COALESCE(rec.valor_recebido, 0)) AS valor_recebido,"
                                 f"       MAX(rec.data_recebimento) as data_recebimento, "
                                 f"       SUM( COALESCE(par.valor_original, 0) - COALESCE(par.valor_desconto, 0) - COALESCE(par.valor_desconto_adimplente, 0) ) AS valor_parcela, "
                                 f"       MAX(CASE WHEN par.vencimento <> par.vencimento_original THEN 'alterado' ELSE 'nao_alterado' END) AS alterado_venc, "
-                                f"       MAX(CASE WHEN par_ant.i_parcela IS NOT NULL THEN 'renegociado' ELSE 'nao_renegociado' END) AS renegociado "
+                                f"       MAX(CASE WHEN rec.valor_refaturado > 0 OR rec.valor_reparcelado > 0 THEN 'renegociado' ELSE 'nao_renegociado' END) AS renegociado "
                                 f"  FROM bethadba.hrrecebimento AS rec "
                                 f"       INNER JOIN bethadba.hrfaturamento_parcela AS par"
                                 f"            ON    par.codi_emp = rec.codi_emp "
